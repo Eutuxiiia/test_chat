@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:test_chat/providers/authentication_provider.dart';
+import 'package:test_chat/providers/chat_provider.dart';
 import 'package:test_chat/screens/authentication.dart';
 import 'package:test_chat/screens/main_screen.dart';
-import 'package:test_chat/screens/splash.dart';
 
 import 'firebase_options.dart';
 
@@ -13,7 +15,8 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(App());
+
+  runApp(const App());
 }
 
 class App extends StatelessWidget {
@@ -21,21 +24,22 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const SplashScreen();
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (context) => ChatProvider()),
+      ],
+      child: MaterialApp(
+        home: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final User user = snapshot.data!;
+              return MainScreen(user: user);
             }
-            final User user = snapshot.data!;
-            return MainScreen(
-              user: user,
-            );
-          }
-          return const AuthenticationScreen();
-        },
+            return const AuthenticationScreen();
+          },
+        ),
       ),
     );
   }

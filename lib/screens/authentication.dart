@@ -1,25 +1,19 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:test_chat/providers/authentication_provider.dart';
 import 'package:test_chat/widgets/user_image_picker.dart';
-
-final _firebase = FirebaseAuth.instance;
 
 class AuthenticationScreen extends StatefulWidget {
   const AuthenticationScreen({super.key});
 
   @override
-  State<AuthenticationScreen> createState() {
-    return _AuthenticationState();
-  }
+  State<AuthenticationScreen> createState() => _AuthenticationState();
 }
 
 class _AuthenticationState extends State<AuthenticationScreen> {
   final _formKey = GlobalKey<FormState>();
-
   var _isLogin = true;
   var _isAuthenticating = false;
   var _enteredUsername = '';
@@ -35,48 +29,39 @@ class _AuthenticationState extends State<AuthenticationScreen> {
     _formKey.currentState!.save();
 
     if (!_isLogin && _selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please pick an image.')),
+      );
       return;
     }
 
+    setState(() {
+      _isAuthenticating = true;
+    });
+
+    final authProvider =
+        Provider.of<AuthenticationProvider>(context, listen: false);
+
     try {
-      setState(() {
-        _isAuthenticating = true;
-      });
       if (_isLogin) {
-        await _firebase.signInWithEmailAndPassword(
-            email: _email!, password: _password!);
+        await authProvider.signIn(_email!, _password!);
       } else {
-        final userCredentials = await _firebase.createUserWithEmailAndPassword(
-            email: _email!, password: _password!);
-
-        final storageRef = FirebaseStorage.instance
-            .ref()
-            .child('user_images')
-            .child('${userCredentials.user!.uid}.jpg');
-
-        await storageRef.putFile(_selectedImage!);
-        final imageUrl = await storageRef.getDownloadURL();
-
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userCredentials.user!.uid)
-            .set({
-          'id': userCredentials.user!.uid,
-          'username': _enteredUsername,
-          'surname': _enteredSurname,
-          'email': _email,
-          'image_url': imageUrl,
-          'is_online': false,
-          'last_active': '',
-        });
+        await authProvider.signUp(
+          email: _email!,
+          password: _password!,
+          username: _enteredUsername,
+          surname: _enteredSurname,
+          image: _selectedImage!,
+        );
       }
-    } on FirebaseAuthException catch (error) {
+    } on Exception catch (error) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error.message ?? 'Authentication failed'),
+          content: Text(error.toString()),
         ),
       );
+    } finally {
       setState(() {
         _isAuthenticating = false;
       });
@@ -114,20 +99,15 @@ class _AuthenticationState extends State<AuthenticationScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Center(
-                            child: _isLogin
-                                ? null
-                                : UserImagePicker(
-                                    onPickImage: (pickedImage) {
-                                      _selectedImage = pickedImage;
-                                    },
-                                  ),
-                          ),
+                          if (!_isLogin)
+                            UserImagePicker(
+                              onPickImage: (pickedImage) {
+                                _selectedImage = pickedImage;
+                              },
+                            ),
                           TextFormField(
                             decoration: const InputDecoration(
-                              label: Text(
-                                'Почта',
-                              ),
+                              label: Text('Почта'),
                             ),
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
@@ -148,9 +128,7 @@ class _AuthenticationState extends State<AuthenticationScreen> {
                           if (!_isLogin)
                             TextFormField(
                               decoration: const InputDecoration(
-                                label: Text(
-                                  'Имя',
-                                ),
+                                label: Text('Имя'),
                               ),
                               enableSuggestions: false,
                               keyboardType: TextInputType.text,
@@ -172,9 +150,7 @@ class _AuthenticationState extends State<AuthenticationScreen> {
                           if (!_isLogin)
                             TextFormField(
                               decoration: const InputDecoration(
-                                label: Text(
-                                  'Фамилия',
-                                ),
+                                label: Text('Фамилия'),
                               ),
                               enableSuggestions: false,
                               keyboardType: TextInputType.text,

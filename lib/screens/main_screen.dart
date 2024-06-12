@@ -114,13 +114,13 @@ class _MainScreenState extends State<MainScreen> {
                                 isSearching ? searchList.length : list.length,
                             itemBuilder: (context, index) {
                               return ChatCard(
-                                user: isSearching
+                                receiverUser: isSearching
                                     ? searchList[index]
                                     : list[index],
                               );
                             },
                           )
-                        : Center(
+                        : const Center(
                             child: CircularProgressIndicator(),
                           );
                   },

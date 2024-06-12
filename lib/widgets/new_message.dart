@@ -1,47 +1,46 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:test_chat/providers/chat_provider.dart';
 
 class NewMessage extends StatefulWidget {
-  const NewMessage({super.key});
+  const NewMessage({Key? key, required this.receiverUser}) : super(key: key);
+
+  final Map<String, dynamic> receiverUser;
 
   @override
-  State<NewMessage> createState() {
-    return _NewMessageState();
-  }
+  State<NewMessage> createState() => _NewMessageState();
 }
 
 class _NewMessageState extends State<NewMessage> {
   final _messageController = TextEditingController();
+  bool isTyping = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _messageController.addListener(_onTextChanged);
+  }
+
+  void _onTextChanged() {
+    setState(() {
+      isTyping = _messageController.text.isNotEmpty;
+    });
+  }
 
   @override
   void dispose() {
+    _messageController.removeListener(_onTextChanged);
     _messageController.dispose();
     super.dispose();
   }
 
   void _submitMessage() async {
-    final _enteredMessage = _messageController.text;
-
-    if (_enteredMessage.trim().isEmpty) {
+    final enteredMessage = _messageController.text.trim();
+    if (enteredMessage.isEmpty) {
       return;
     }
-    FocusScope.of(context).unfocus();
-
-    final user = FirebaseAuth.instance.currentUser!;
-
-    final userData = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
-
-    FirebaseFirestore.instance.collection('chat').add({
-      'text': _enteredMessage,
-      'createdAt': Timestamp.now(),
-      'userId': user.uid,
-      'userName': userData.data()!['username'],
-      'userImage': userData.data()!['image_url'],
-    });
+    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    await chatProvider.sendMessage(widget.receiverUser['id'], enteredMessage);
 
     _messageController.clear();
   }
@@ -59,7 +58,9 @@ class _NewMessageState extends State<NewMessage> {
             ),
             child: IconButton(
               color: Colors.black,
-              onPressed: _submitMessage,
+              onPressed: () {
+                // Handle attachment action
+              },
               icon: const Icon(Icons.attachment),
               iconSize: 30,
             ),
@@ -94,8 +95,8 @@ class _NewMessageState extends State<NewMessage> {
             child: IconButton(
               color: Colors.black,
               onPressed: _submitMessage,
-              icon: const Icon(Icons.mic),
-              iconSize: 30,
+              icon: isTyping ? const Icon(Icons.send) : const Icon(Icons.mic),
+              iconSize: isTyping ? 25 : 30,
             ),
           ),
           const SizedBox(width: 5),
