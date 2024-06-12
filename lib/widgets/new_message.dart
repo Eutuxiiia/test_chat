@@ -70,7 +70,6 @@ class _NewMessageState extends State<NewMessage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 color: const Color.fromARGB(255, 237, 242, 246),
-                // Add border to TextField
               ),
               child: TextField(
                 controller: _messageController,

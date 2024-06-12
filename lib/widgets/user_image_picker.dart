@@ -50,7 +50,7 @@ class _UserImagePickerState extends State<UserImagePicker> {
           onPressed: _pickImage,
           icon: const Icon(Icons.camera),
           label: Text(
-            'Add an image',
+            'Добавить фото',
             style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
             ),

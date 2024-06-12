@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:test_chat/screens/authentication.dart';
-import 'package:test_chat/screens/chats.dart';
+import 'package:test_chat/screens/main_screen.dart';
 import 'package:test_chat/screens/splash.dart';
 
 import 'firebase_options.dart';
@@ -30,7 +30,7 @@ class App extends StatelessWidget {
               return const SplashScreen();
             }
             final User user = snapshot.data!;
-            return ChatScreen(
+            return MainScreen(
               user: user,
             );
           }
