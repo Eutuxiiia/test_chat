@@ -102,7 +102,7 @@ class _MainScreenState extends State<MainScreen> {
                       if (list.isEmpty) {
                         for (var i in data!) {
                           print('Data: ${i.data()}');
-                          list.add(i.data() as Map<String, dynamic>);
+                          list.add(i.data());
                         }
                       }
                     }

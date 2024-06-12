@@ -29,7 +29,8 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Future<void> sendMessage(String receiverUserId, String message) async {
+  Future<void> sendMessage(
+      String receiverUserId, String message, String imageUrl) async {
     final currentUserId = _firebaseAuth.currentUser!.uid;
     final conversationId1 = '${currentUserId}_$receiverUserId';
     final conversationId2 = '${receiverUserId}_$currentUserId';
@@ -59,7 +60,7 @@ class ChatProvider with ChangeNotifier {
       'sendId': currentUserId,
       'receiverId': receiverUserId,
       'read': false,
-      'type': 'text',
+      'type': imageUrl,
     });
 
     await chatDocRef.update({

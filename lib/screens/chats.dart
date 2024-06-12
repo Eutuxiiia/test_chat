@@ -46,6 +46,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 const Text(
+                  // ignore: dead_code
                   true ? 'В сети' : '',
                   style: TextStyle(
                     color: Colors.grey,

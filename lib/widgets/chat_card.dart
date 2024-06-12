@@ -26,11 +26,6 @@ class _ChatCardState extends State<ChatCard> {
     final conversationId1 = '${currentUserId}_${widget.receiverUser['id']}';
     final conversationId2 = '${widget.receiverUser['id']}_${currentUserId}';
 
-    final query1 =
-        FirebaseFirestore.instance.collection('chats').doc(conversationId1);
-    final query2 =
-        FirebaseFirestore.instance.collection('chats').doc(conversationId2);
-
     return FirebaseFirestore.instance
         .collection('chats')
         .where(FieldPath.documentId,
@@ -60,27 +55,28 @@ class _ChatCardState extends State<ChatCard> {
           stream: _getConversationStream(),
           builder: (context, snapshot) {
             if (!snapshot.hasData || snapshot.data == null) {
-              return const ListTile(
+              // Check if snapshot is null
+              return ListTile(
                 leading: CircleAvatar(
                   radius: 27,
-                  backgroundImage: NetworkImage(''),
+                  backgroundImage: NetworkImage(receiverUser['image_url']),
                 ),
-                title: Text('Loading...'),
-                subtitle: Text(''),
-                trailing: Text(''),
+                title: Text(receiverUser['username']),
+                subtitle: const Text(''),
+                trailing: const Text(''),
               );
             }
 
             final conversationData = snapshot.data!.data();
             if (conversationData == null) {
-              return const ListTile(
+              return ListTile(
                 leading: CircleAvatar(
                   radius: 27,
-                  backgroundImage: NetworkImage(''),
+                  backgroundImage: NetworkImage(receiverUser['image_url']),
                 ),
-                title: Text('No Data'),
-                subtitle: Text(''),
-                trailing: Text(''),
+                title: Text(receiverUser['username']),
+                subtitle: const Text(''),
+                trailing: const Text(''),
               );
             }
 
@@ -91,20 +87,23 @@ class _ChatCardState extends State<ChatCard> {
                 ? DateFormat('HH:mm').format(lastUpdatedAt)
                 : '';
 
-            return ListTile(
-              leading: CircleAvatar(
-                radius: 27,
-                backgroundImage: NetworkImage(receiverUser['image_url']),
-              ),
-              title: Text(receiverUser['username']),
-              subtitle: Text(
-                lastMessage,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              trailing: Text(
-                formattedTime,
-                style: const TextStyle(color: Colors.black54),
+            return SizedBox(
+              height: 70,
+              child: ListTile(
+                leading: CircleAvatar(
+                  radius: 27,
+                  backgroundImage: NetworkImage(receiverUser['image_url']),
+                ),
+                title: Text(receiverUser['username']),
+                subtitle: Text(
+                  lastMessage,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: Text(
+                  formattedTime,
+                  style: const TextStyle(color: Colors.black54),
+                ),
               ),
             );
           },

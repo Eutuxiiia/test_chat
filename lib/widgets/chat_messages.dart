@@ -6,7 +6,7 @@ import 'package:test_chat/providers/chat_provider.dart';
 import 'package:test_chat/widgets/message_bubble.dart';
 
 class ChatMessages extends StatelessWidget {
-  const ChatMessages({Key? key, required this.receiverUser}) : super(key: key);
+  const ChatMessages({super.key, required this.receiverUser});
 
   final Map<String, dynamic> receiverUser;
 
@@ -125,6 +125,7 @@ class ChatMessages extends StatelessWidget {
                     isMe: senderId == currentUserId,
                     time: formattedTime,
                     isRead: chatMessage['read'],
+                    messageType: chatMessage['type'],
                   );
                 } else {
                   return const SizedBox.shrink();

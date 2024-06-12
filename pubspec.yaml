@@ -45,6 +45,7 @@ dependencies:
   uuid: ^4.2.2
   intl: ^0.17.0
   flutter_chat_bubble: ^2.0.2
+  audio_waveforms: ^1.0.5
 
 dev_dependencies:
   flutter_test:
