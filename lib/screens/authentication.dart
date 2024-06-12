@@ -61,10 +61,13 @@ class _AuthenticationState extends State<AuthenticationScreen> {
             .collection('users')
             .doc(userCredentials.user!.uid)
             .set({
+          'id': userCredentials.user!.uid,
           'username': _enteredUsername,
           'surname': _enteredSurname,
           'email': _email,
           'image_url': imageUrl,
+          'is_online': false,
+          'last_active': '',
         });
       }
     } on FirebaseAuthException catch (error) {
@@ -90,7 +93,7 @@ class _AuthenticationState extends State<AuthenticationScreen> {
             children: [
               Center(
                 child: Text(
-                  _isLogin ? 'Sign in' : 'Sign Up',
+                  _isLogin ? 'Войти' : 'Регистрация',
                   style: const TextStyle(
                     fontSize: 50,
                   ),
@@ -123,7 +126,7 @@ class _AuthenticationState extends State<AuthenticationScreen> {
                           TextFormField(
                             decoration: const InputDecoration(
                               label: Text(
-                                'Email Address',
+                                'Почта',
                               ),
                             ),
                             keyboardType: TextInputType.emailAddress,
@@ -146,7 +149,7 @@ class _AuthenticationState extends State<AuthenticationScreen> {
                             TextFormField(
                               decoration: const InputDecoration(
                                 label: Text(
-                                  'Username',
+                                  'Имя',
                                 ),
                               ),
                               enableSuggestions: false,
@@ -158,7 +161,7 @@ class _AuthenticationState extends State<AuthenticationScreen> {
                                 if (value == null ||
                                     value.trim().isEmpty ||
                                     value.length <= 4) {
-                                  return 'Enter a valid Username';
+                                  return 'Enter a valid Name';
                                 }
                                 return null;
                               },
@@ -170,7 +173,7 @@ class _AuthenticationState extends State<AuthenticationScreen> {
                             TextFormField(
                               decoration: const InputDecoration(
                                 label: Text(
-                                  'Surname',
+                                  'Фамилия',
                                 ),
                               ),
                               enableSuggestions: false,
@@ -192,12 +195,12 @@ class _AuthenticationState extends State<AuthenticationScreen> {
                             ),
                           TextFormField(
                             decoration: const InputDecoration(
-                              label: Text('Password'),
+                              label: Text('Пароль'),
                             ),
                             obscureText: true,
                             validator: (value) {
                               if (value == null || value.trim().length < 6) {
-                                return 'Password should be at least 6 characters long';
+                                return 'Пароль должен быть не меньше 6 знаков';
                               }
                               return null;
                             },
@@ -217,7 +220,7 @@ class _AuthenticationState extends State<AuthenticationScreen> {
                                     .primaryContainer,
                               ),
                               child: Text(
-                                _isLogin ? 'Login' : 'Sign up',
+                                _isLogin ? 'Войти' : 'Регистрация',
                               ),
                             ),
                           if (!_isAuthenticating)
@@ -228,8 +231,8 @@ class _AuthenticationState extends State<AuthenticationScreen> {
                                 });
                               },
                               child: Text(_isLogin
-                                  ? 'Create an account'
-                                  : 'I already have an account'),
+                                  ? 'Создать аккаунт'
+                                  : 'Аккаунт уже есть'),
                             ),
                         ],
                       ),

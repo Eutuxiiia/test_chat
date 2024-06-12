@@ -1,10 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ChatCard extends StatefulWidget {
-  final User user;
-
   const ChatCard({super.key, required this.user});
+
+  final Map<String, dynamic> user;
 
   @override
   State<ChatCard> createState() => _ChatCardState();
@@ -13,22 +12,25 @@ class ChatCard extends StatefulWidget {
 class _ChatCardState extends State<ChatCard> {
   @override
   Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context).size;
+    final Map<String, dynamic> user = widget.user;
     return Card(
-      elevation: 0.5,
+      elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
       child: InkWell(
         onTap: () {},
-        child: const ListTile(
-          leading: CircleAvatar(),
-          title: Text('Bakytzhan'),
-          subtitle: Text(
+        child: ListTile(
+          leading: CircleAvatar(
+            radius: 27,
+            backgroundImage: NetworkImage(user['image_url']),
+          ),
+          title: Text(user['username']),
+          subtitle: const Text(
             'Text',
             maxLines: 1,
           ),
-          trailing: Text(
+          trailing: const Text(
             'Chat',
             style: TextStyle(color: Colors.black54),
           ),
