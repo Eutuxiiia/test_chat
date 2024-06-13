@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 
 class ChatProvider with ChangeNotifier {
@@ -69,5 +72,60 @@ class ChatProvider with ChangeNotifier {
     });
 
     notifyListeners();
+  }
+
+  Future<void> sendVoiceMessage(String receiverUserId, String voicePath) async {
+    final currentUserId = _firebaseAuth.currentUser!.uid;
+    final conversationId1 = '${currentUserId}_$receiverUserId';
+    final conversationId2 = '${receiverUserId}_$currentUserId';
+
+    DocumentReference chatDocRef;
+    final docSnapshot1 =
+        await _firestore.collection('chats').doc(conversationId1).get();
+    final docSnapshot2 =
+        await _firestore.collection('chats').doc(conversationId2).get();
+
+    if (docSnapshot1.exists) {
+      chatDocRef = docSnapshot1.reference;
+    } else if (docSnapshot2.exists) {
+      chatDocRef = docSnapshot2.reference;
+    } else {
+      chatDocRef = _firestore.collection('chats').doc(conversationId1);
+      await chatDocRef.set({
+        'users': [currentUserId, receiverUserId],
+        'lastMessage': 'Voice message',
+        'lastUpdatedAt': Timestamp.now(),
+      });
+    }
+
+    final voiceUrl = await _uploadVoiceToStorage(voicePath);
+
+    await chatDocRef.collection('messages').add({
+      'text': 'Voice message',
+      'createdAt': Timestamp.now(),
+      'sendId': currentUserId,
+      'receiverId': receiverUserId,
+      'read': false,
+      'type': voiceUrl,
+    });
+
+    await chatDocRef.update({
+      'lastMessage': 'Voice message',
+      'lastUpdatedAt': Timestamp.now(),
+    });
+
+    notifyListeners();
+  }
+
+  Future<String> _uploadVoiceToStorage(String filePath) async {
+    final firebase_storage.Reference storageRef = firebase_storage
+        .FirebaseStorage.instance
+        .ref()
+        .child('voice_messages')
+        .child('${DateTime.now().toIso8601String()}.m4a');
+    final firebase_storage.UploadTask uploadTask =
+        storageRef.putFile(File(filePath));
+    final firebase_storage.TaskSnapshot snapshot = await uploadTask;
+    return await snapshot.ref.getDownloadURL();
   }
 }

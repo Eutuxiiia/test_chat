@@ -65,6 +65,9 @@ class _MainScreenState extends State<MainScreen> {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   fillColor: const Color.fromARGB(255, 237, 242, 246),
+                  filled: true,
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -101,7 +104,6 @@ class _MainScreenState extends State<MainScreen> {
                       final data = snapshot.data?.docs;
                       if (list.isEmpty) {
                         for (var i in data!) {
-                          print('Data: ${i.data()}');
                           list.add(i.data());
                         }
                       }

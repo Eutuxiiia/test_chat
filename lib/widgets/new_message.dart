@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:test_chat/providers/chat_provider.dart';
+import 'package:test_chat/widgets/voice_message.dart';
 
 class NewMessage extends StatefulWidget {
   const NewMessage({super.key, required this.receiverUser});
@@ -16,7 +17,6 @@ class NewMessage extends StatefulWidget {
 
 class _NewMessageState extends State<NewMessage> {
   final _messageController = TextEditingController();
-
   bool isTyping = false;
   File? _imageFile;
   final _picker = ImagePicker();
@@ -140,12 +140,16 @@ class _NewMessageState extends State<NewMessage> {
               borderRadius: BorderRadius.circular(9),
               color: const Color.fromARGB(255, 237, 242, 246),
             ),
-            child: IconButton(
-              color: Colors.black,
-              onPressed: _submitMessage,
-              icon: isTyping ? const Icon(Icons.send) : const Icon(Icons.mic),
-              iconSize: isTyping ? 25 : 30,
-            ),
+            child: isTyping
+                ? IconButton(
+                    color: Colors.black,
+                    onPressed: _submitMessage,
+                    icon: const Icon(Icons.send),
+                    iconSize: 25,
+                  )
+                : VoiceMessage(
+                    receiverUser: widget.receiverUser,
+                  ),
           ),
           const SizedBox(width: 5),
         ],
